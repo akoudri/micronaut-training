@@ -6,13 +6,12 @@ import com.akfc.training.dto.SWMovie;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import io.micronaut.context.annotation.Context;
 import io.micronaut.context.annotation.Value;
 import io.r2dbc.spi.ConnectionFactories;
 import io.r2dbc.spi.ConnectionFactory;
 import io.r2dbc.spi.ConnectionFactoryOptions;
-import jakarta.annotation.PostConstruct;
 import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -29,8 +28,11 @@ import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-@Context
+@Singleton
 public class MovieManager {
+
+    private boolean initizalized = false;
+    private long movieCount = 0;
 
     @Inject
     private MovieRepo repo;
@@ -56,40 +58,25 @@ public class MovieManager {
         return ConnectionFactories.get(options);
     }
 
-    private String sqlFromMovie(SWMovie m) {
-        return String.format("insert into movie(title, director, genre, release) values ('%s', '%s', '%s', '%s')",
-                m.title().replace("'", "''"),
-                m.director(),
-                String.join(", ", m.genre()),
-                m.release()
-        );
-    }
-
-    @PostConstruct
-    public void init() {
+    private void init() {
         System.out.println("Feeding database");
         Flux.just("Quentin Tarantino", "Steven Spielberg", "David Lynch", "David Fincher")
-                .flatMap(e -> {
+                .flatMap(director -> {
                     try {
-                        return findMoviesByDirector(e);
+                        return findMoviesByDirector(director);
                     } catch (Exception ex) {
-                        throw new RuntimeException(ex);
+                        return Flux.error(ex); // Convert the exception to a Flux error
                     }
                 })
-                .subscribe(m -> repo.save(
-                        new Movie(
-                                null,
-                                m.title().replace("'", "''"),
-                                m.director(),
-                                String.join(", ", m.genre()),
-                                m.release()
-                        )
-                )
-                        .doOnError(err -> System.err.println(err.getMessage()))
-                        .subscribe());
+                .flatMap(m -> repo.save(new Movie(++movieCount, m.title().replace("'", "''"),
+                        m.director(), String.join(", ", m.genre()),
+                        m.release())))
+                .doOnError(err -> System.err.println("Error: " + err.getMessage()))
+                .doOnComplete(() -> initizalized = true)
+                .subscribe();
     }
 
-    public Flux<SWMovie> findMoviesByDirector(String director) throws Exception {
+    private Flux<SWMovie> findMoviesByDirector(String director) throws Exception {
         return getMoviesByDirector(director)
                 .map(s -> {
                     JsonArray res = JsonParser.parseReader(new StringReader(s)).getAsJsonObject().getAsJsonObject("results").getAsJsonArray("bindings");
@@ -114,7 +101,7 @@ public class MovieManager {
                 }).flatMapIterable(e -> e);
     }
 
-    public Mono<String> getMoviesByDirector(String director) throws Exception {
+    private Mono<String> getMoviesByDirector(String director) throws Exception {
         String[] names = director.split(" ");
         String request = String.format("""
                 SELECT DISTINCT ?movieLabel ?directorLabel ?genreLabel ?release WHERE {
@@ -134,5 +121,10 @@ public class MovieManager {
         HttpRequest req = HttpRequest.newBuilder().GET().uri(url.toURI()).header("Accept", "application/json").build();
         HttpResponse<String> response = client.send(req, HttpResponse.BodyHandlers.ofString());
         return Mono.just(response.body());
+    }
+
+    public Flux<Movie> getAll() throws Exception {
+        if (! initizalized) init();
+        return repo.findAll();
     }
 }
