@@ -7,8 +7,8 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import io.micronaut.context.event.ApplicationEventListener;
+import io.micronaut.context.event.StartupEvent;
 import io.micronaut.runtime.Micronaut;
-import io.micronaut.runtime.server.event.ServerStartupEvent;
 import jakarta.inject.Inject;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -26,9 +26,8 @@ import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class Application implements ApplicationEventListener<ServerStartupEvent> {
+public class Application implements ApplicationEventListener<StartupEvent> {
 
-    private boolean initizalized = false;
     private long movieCount = 0;
 
     @Inject
@@ -39,7 +38,7 @@ public class Application implements ApplicationEventListener<ServerStartupEvent>
     }
 
     @Override
-    public void onApplicationEvent(ServerStartupEvent event) {
+    public void onApplicationEvent(StartupEvent event) {
         init();
     }
 
@@ -57,7 +56,7 @@ public class Application implements ApplicationEventListener<ServerStartupEvent>
                         m.director(), String.join(", ", m.genre()),
                         m.release())))
                 .doOnError(err -> System.err.println("Error: " + err.getMessage()))
-                .doOnComplete(() -> initizalized = true)
+                .doOnComplete(() -> System.out.println("Database fed"))
                 .subscribe();
     }
 
