@@ -36,3 +36,4 @@ micrometer:
         enabled: true
       server:
         enabled: true
+
