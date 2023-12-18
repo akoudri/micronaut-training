@@ -21,4 +21,7 @@ public interface MovieRepo extends ReactorCrudRepository<Movie, Long> {
     @Override
     Flux<Movie> findAll();
 
+    @NonNull
+    Flux<Movie> findByDirector(@NonNull String director);
+
 }

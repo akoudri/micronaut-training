@@ -28,8 +28,6 @@ import java.util.regex.Pattern;
 
 public class Application implements ApplicationEventListener<StartupEvent> {
 
-    private long movieCount = 0;
-
     @Inject
     private MovieRepo repo;
 
@@ -52,7 +50,7 @@ public class Application implements ApplicationEventListener<StartupEvent> {
                         return Flux.error(ex); // Convert the exception to a Flux error
                     }
                 })
-                .flatMap(m -> repo.save(new Movie(++movieCount, m.title().replace("'", "''"),
+                .flatMap(m -> repo.save(new Movie(m.title().replace("'", "''"),
                         m.director(), String.join(", ", m.genre()),
                         m.release())))
                 .doOnError(err -> System.err.println("Error: " + err.getMessage()))

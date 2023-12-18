@@ -34,7 +34,26 @@ public class MovieManager {
     @Inject
     private MovieRepo repo;
 
-    public Flux<Movie> getAll() throws Exception {
+    public Flux<Movie> getAll() {
         return repo.findAll();
+    }
+
+    public Mono<Movie> getById(Long id) {
+        return repo.findById(id);
+    }
+
+    public Flux<Movie> getByDirector(String director) {
+        return repo.findByDirector(director);
+    }
+
+    public Mono<Movie> addMovie(Movie movie) {
+        return repo.save(movie);
+    }
+
+    public void deleteMoviesByDirector(String director) {
+        repo.findByDirector(director)
+                .flatMap(movie -> repo.deleteById(movie.getId()))
+                .then()
+                .subscribe();
     }
 }

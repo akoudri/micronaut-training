@@ -39,3 +39,4 @@ micrometer:
 
 movies:
   title: "Movies"
+  description: "Movies API"
