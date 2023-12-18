@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Home</title>
+<head>
+    <meta charset="UTF-8">
+    <title>Sensor</title>
+</head>
+<body>
+<h1>Hello World</h1>
+<ul id="events"></ul>
+<script type="application/javascript">
+const add = message => {
+    const item = document.createElement("li");
+    item.innerHTML = message;
+    document.getElementById("events").appendChild(item);
+};
+    const eventSource = new EventSource("/temperature-stream");
+eventSource.onmessage = e => {
+    const t = JSON.parse(e.data);
+    const fixed = Number(t.value).toFixed(2);
+    add('Temperature ' + fixed + ' °C');
+};
+eventSource.onopen = e => add('Connection opened');
+eventSource.onerror = e => {
+    add('Connection closed');
+    eventSource.close();
+};
+</script>
+</body>
+</html>
