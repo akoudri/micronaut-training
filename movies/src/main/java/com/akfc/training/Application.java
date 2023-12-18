@@ -28,8 +28,6 @@ import java.util.regex.Pattern;
 
 public class Application implements ApplicationEventListener<StartupEvent> {
 
-    private long movieCount = 0;
-
     @Inject
     private MovieRepo repo;
 
@@ -44,20 +42,8 @@ public class Application implements ApplicationEventListener<StartupEvent> {
 
     private void init() {
         System.out.println("Feeding database");
-        Flux.just("Quentin Tarantino", "Steven Spielberg", "David Lynch", "David Fincher")
-                .flatMap(director -> {
-                    try {
-                        return findMoviesByDirector(director);
-                    } catch (Exception ex) {
-                        return Flux.error(ex); // Convert the exception to a Flux error
-                    }
-                })
-                .flatMap(m -> repo.save(new Movie(++movieCount, m.title().replace("'", "''"),
-                        m.director(), String.join(", ", m.genre()),
-                        m.release())))
-                .doOnError(err -> System.err.println("Error: " + err.getMessage()))
-                .doOnComplete(() -> System.out.println("Database fed"))
-                .subscribe();
+        //TODO: Feed the database for the following directors:
+        //"Quentin Tarantino", "Steven Spielberg", "David Lynch", "David Fincher"
     }
 
     private Flux<SWMovie> findMoviesByDirector(String director) throws Exception {
