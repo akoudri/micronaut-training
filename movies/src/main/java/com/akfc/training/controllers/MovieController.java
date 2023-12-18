@@ -3,7 +3,10 @@ package com.akfc.training.controllers;
 import com.akfc.training.dto.MovieHeader;
 import com.akfc.training.data.Movie;
 import com.akfc.training.services.MovieManager;
+import io.micronaut.http.HttpResponse;
+import io.micronaut.http.HttpStatus;
 import io.micronaut.http.MediaType;
+import io.micronaut.http.MutableHttpResponse;
 import io.micronaut.http.annotation.*;
 import jakarta.inject.Inject;
 import reactor.core.publisher.Flux;
@@ -22,8 +25,12 @@ public class MovieController {
     }
 
     @Get(value = "/{id}", produces = MediaType.APPLICATION_JSON)
-    public Mono<Movie> getById(Long id) {
-        return manager.getById(id);
+    public Mono<MutableHttpResponse<Movie>> getById(Long id) {
+        return manager.getById(id)
+                .map(HttpResponse::ok)  // Wrap the Movie in an HttpResponse
+                .switchIfEmpty(Mono.just(HttpResponse.notFound()))  // Return HttpResponse.notFound for empty results
+                .onErrorResume(e -> Mono.just(HttpResponse.<Movie>status(HttpStatus.INTERNAL_SERVER_ERROR)  // Ensure HttpResponse<Movie> is returned
+                        .body(null)));  // You can choose to not send a body or send a custom error message object
     }
 
     @Get(value = "/director", produces = MediaType.APPLICATION_JSON)
@@ -32,8 +39,8 @@ public class MovieController {
     }
 
     @Post(value = "/create", produces = MediaType.APPLICATION_JSON, consumes = MediaType.APPLICATION_JSON)
-    public Mono<Movie> addMovie(@Body Movie movie) {
-        return manager.addMovie(movie);
+    public Mono<HttpResponse<Movie>> addMovie(@Body Movie movie) {
+        return manager.addMovie(movie).map(HttpResponse::created);
     }
 
     @Delete(value = "/director")
