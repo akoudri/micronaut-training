@@ -1,7 +1,6 @@
 package com.akfc.training;
 
 import com.akfc.training.dao.MovieRepo;
-import com.akfc.training.data.Movie;
 import com.akfc.training.dto.SWMovie;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
