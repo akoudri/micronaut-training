@@ -50,6 +50,10 @@ micrometer:
       server:
         enabled: true
 
+kafka:
+  bootstrap:
+    servers: localhost:29092
+
 movies:
   title: "Best Movies"
   description: "Movies API"
