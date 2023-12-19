@@ -13,6 +13,9 @@ micronaut:
     directorMoviesCache:
       maximum-size: 20
       expire-after-write: 15m
+  logging:
+    levels:
+      com.akfc.training.filters: DEBUG
 
 consul:
   client:
