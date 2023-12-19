@@ -3,6 +3,16 @@ micronaut:
     name: movies
   metrics:
     enabled: true
+  caches:
+    moviesCache:
+      maximum-size: 50
+      expire-after-write: 10m
+    movieCache:
+      maximum-size: 5
+      expire-after-write: 30m
+    directorMoviesCache:
+      maximum-size: 20
+      expire-after-write: 15m
 
 consul:
   client:
@@ -38,5 +48,5 @@ micrometer:
         enabled: true
 
 movies:
-  title: "Movies"
+  title: "Best Movies"
   description: "Movies API"

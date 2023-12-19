@@ -9,6 +9,7 @@ import io.micronaut.http.MediaType;
 import io.micronaut.http.MutableHttpResponse;
 import io.micronaut.http.annotation.*;
 import jakarta.inject.Inject;
+import jakarta.validation.Valid;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -39,7 +40,7 @@ public class MovieController {
     }
 
     @Post(value = "/create", produces = MediaType.APPLICATION_JSON, consumes = MediaType.APPLICATION_JSON)
-    public Mono<HttpResponse<Movie>> addMovie(@Body Movie movie) {
+    public Mono<HttpResponse<Movie>> addMovie(@Body @Valid Movie movie) {
         return manager.addMovie(movie).map(HttpResponse::created);
     }
 

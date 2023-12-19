@@ -26,7 +26,7 @@ public class HelloController {
     @Get(produces = MediaType.TEXT_PLAIN)
     public Mono<String> sayHello() {
         //return moviesConfig.getTitle();
-        return hello.sayHello("Ali");
+        return hello.sayHello();
     }
 
 }
