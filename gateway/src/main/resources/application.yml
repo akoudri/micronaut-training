@@ -1,0 +1,14 @@
+micronaut:
+  application:
+    name: gateway
+
+consul:
+  client:
+    defaultZone: ${CONSUL_HOST:localhost}:${CONSUL_PORT:8500}
+    registration:
+      enabled: true
+
+kafka:
+  bootstrap:
+    servers: localhost:29092
+
