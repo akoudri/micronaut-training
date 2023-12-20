@@ -13,6 +13,8 @@ import jakarta.validation.Valid;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.time.Duration;
+
 @Controller("/movies")
 public class MovieController {
 
@@ -21,8 +23,11 @@ public class MovieController {
 
     @Get(produces = MediaType.APPLICATION_JSON)
     public Flux<MovieHeader> getAll() {
-        return manager.getAll()
-                .map(movie -> new MovieHeader(movie.getId(), movie.getTitle()));
+        /*return manager.getAll()
+                .map(movie -> new MovieHeader(movie.getId(), movie.getTitle()));*/
+        return Mono.delay(Duration.ofSeconds(1))
+                .thenMany(manager.getAll()
+                        .map(movie -> new MovieHeader(movie.getId(), movie.getTitle())));
     }
 
     @Get(value = "/{id}", produces = MediaType.APPLICATION_JSON)
