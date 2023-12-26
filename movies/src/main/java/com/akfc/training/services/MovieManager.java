@@ -1,9 +1,12 @@
 package com.akfc.training.services;
 
 import com.akfc.training.dao.MovieRepo;
+import com.akfc.training.data.MessageEvent;
 import com.akfc.training.data.Movie;
 import com.akfc.training.mq.Producer;
 import io.micronaut.cache.annotation.Cacheable;
+import io.micronaut.runtime.event.annotation.EventListener;
+import io.micronaut.scheduling.annotation.Async;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import reactor.core.publisher.Flux;
@@ -60,5 +63,11 @@ public class MovieManager {
                 .flatMap(movie -> repo.deleteById(movie.getId()))
                 .then()
                 .subscribe();
+    }
+
+    @EventListener
+    @Async
+    public void onMessageEvent(MessageEvent event) {
+        System.out.println("Movie Manager: received " + event.message() + " at " + event.timestamp());
     }
 }

@@ -25,7 +25,7 @@ public class MovieController {
     public Flux<MovieHeader> getAll() {
         /*return manager.getAll()
                 .map(movie -> new MovieHeader(movie.getId(), movie.getTitle()));*/
-        return Mono.delay(Duration.ofSeconds(1))
+        return Mono.delay(Duration.ofSeconds(5))
                 .thenMany(manager.getAll()
                         .map(movie -> new MovieHeader(movie.getId(), movie.getTitle())));
     }

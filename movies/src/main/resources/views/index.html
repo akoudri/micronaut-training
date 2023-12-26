@@ -15,11 +15,13 @@ const add = message => {
     item.innerHTML = message;
     document.getElementById("events").appendChild(item);
 };
-    const eventSource = new EventSource("/temperature-stream");
+const eventSource = new EventSource("/climat-stream");
 eventSource.onmessage = e => {
     const t = JSON.parse(e.data);
-    const fixed = Number(t.value).toFixed(2);
-    add('Temperature ' + fixed + ' °C');
+    const timestamp = t.timestamp;
+    const temp = Number(t.temperature).toFixed(2);
+    const pressure = Number(t.pressure).toFixed(2);
+    add('Temperature ' + temp + ' °C, Pressure ' + pressure + " @" + timestamp);
 };
 eventSource.onopen = e => add('Connection opened');
 eventSource.onerror = e => {
