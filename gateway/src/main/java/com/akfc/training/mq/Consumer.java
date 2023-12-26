@@ -5,7 +5,7 @@ import io.micronaut.configuration.kafka.annotation.KafkaListener;
 import io.micronaut.configuration.kafka.annotation.OffsetReset;
 import io.micronaut.configuration.kafka.annotation.Topic;
 
-@KafkaListener(offsetReset = OffsetReset.EARLIEST) // (1)
+@KafkaListener(offsetReset = OffsetReset.EARLIEST)
 public class Consumer {
 
     @Topic("movies")
